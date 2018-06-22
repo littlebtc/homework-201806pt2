@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "lint": "eslint *.js **/*.js"
+    "lint": "eslint *.js **/*.js",
+    "babel": "babel"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "cheerio": "^1.0.0-rc.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
