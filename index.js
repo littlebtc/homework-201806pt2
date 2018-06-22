@@ -34,6 +34,7 @@ const app = express();
 app.get('/', asyncWrapper(async (req, res) => {
   res.send(JSON.stringify(await User.findAll()));
 }));
+
 app.get('/p/', (req, res, next) => {
   User.findAll().then(users => res.send(JSON.stringify(users))).catch(next);
 });
@@ -48,6 +49,7 @@ app.get('/parse', asyncWrapper(async (req, res) => {
   await User.create({ name, facebook_id: profileId });
   res.send('ok');
 }));
+
 app.get('/p/parse', (req, res, next) => {
   const { url } = req.query;
   fetch(url).then(r => (r.text())).then((text) => {
@@ -59,5 +61,64 @@ app.get('/p/parse', (req, res, next) => {
     res.send('ok');
   })
     .catch(next);
+});
+
+// User A adds a new friend B.
+app.get('/addf/:userId/:friendId', asyncWrapper(async (req, res) => {
+  const { userId, friendId } = req.params;
+  const [user, friend] = await Promise.all([User.findById(userId), User.findById(friendId)]);
+  await user.addFriend(friend);
+  res.send('ok');
+}));
+app.get('/p/addf/:userId/:friendId', (req, res, next) => {
+  const { userId, friendId } = req.params;
+  Promise.all([User.findById(userId), User.findById(friendId)]).then((result) => {
+    const [user, friend] = result;
+    return user.addFriend(friend);
+  }).then(() => {
+    res.send('ok');
+  })
+    .catch(next);
+});
+
+function intersection(friendsA, friendsB) {
+  const result = [];
+  // Add friends of A to a set.
+  const friendsASet = new Set();
+  for (let i = 0; i < friendsA.length; i += 1) {
+    const friend = friendsA[i];
+    friendsASet.add(friend.id, friend);
+  }
+  // Iterate friends of B, finding if it is in the set.
+  for (let i = 0; i < friendsB.length; i += 1) {
+    const friend = friendsB[i];
+    if (friendsASet.has(friend.id)) {
+      result.push({
+        id: friend.id,
+        facebook_id: friend.facebook_id,
+        name: friend.name,
+      });
+    }
+  }
+  return result;
+}
+
+// Get mutual friends of two users.
+// Use raw query may be faster, but I use sequelize here...
+app.get('/mutual/:userAId/:userBId', asyncWrapper(async (req, res) => {
+  const { userAId, userBId } = req.params;
+  const [userA, userB] = await Promise.all([User.findById(userAId), User.findById(userBId)]);
+  const [friendsA, friendsB] = await Promise.all([userA.getFriends(), userB.getFriends()]);
+  res.send(intersection(friendsA, friendsB));
+}));
+app.get('/p/mutual/:userAId/:userBId', (req, res, next) => {
+  const { userAId, userBId } = req.params;
+  Promise.all([User.findById(userAId), User.findById(userBId)]).then((result) => {
+    const [userA, userB] = result;
+    return Promise.all([userA.getFriends(), userB.getFriends()]);
+  }).then((result) => {
+    const [friendsA, friendsB] = result;
+    res.send(intersection(friendsA, friendsB));
+  }).catch(next);
 });
 app.listen(5555);
