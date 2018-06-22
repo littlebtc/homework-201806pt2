@@ -14,6 +14,7 @@ Go to `http://localhost:5555/`.
 
 * Since Node 6.x did not have async/await support, you need to transform using Babel:
 
+
     yarn
     yarn babel index.js --out-file app.js
     node app.js
