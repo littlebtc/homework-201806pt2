@@ -67,14 +67,14 @@ app.get('/p/parse', (req, res, next) => {
 app.get('/addf/:userId/:friendId', asyncWrapper(async (req, res) => {
   const { userId, friendId } = req.params;
   const [user, friend] = await Promise.all([User.findById(userId), User.findById(friendId)]);
-  await user.addFriend(friend);
+  await Promise.all([user.addFriend(friend), friend.addFriend(user)]);
   res.send('ok');
 }));
 app.get('/p/addf/:userId/:friendId', (req, res, next) => {
   const { userId, friendId } = req.params;
   Promise.all([User.findById(userId), User.findById(friendId)]).then((result) => {
     const [user, friend] = result;
-    return user.addFriend(friend);
+    return Promise.all([user.addFriend(friend), friend.addFriend(user)]);
   }).then(() => {
     res.send('ok');
   })
