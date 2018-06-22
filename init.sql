@@ -1,0 +1,13 @@
+CREATE TABLE users (
+  id INT NOT NULL AUTO_INCREMENT,
+  facebook_id BIGINT NOT NULL,
+  name VARCHAR(256) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE friends (
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  friend_id INT NOT NULL,
+  PRIMARY KEY (id)
+);

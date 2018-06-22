@@ -1,0 +1,17 @@
+version: "3"
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:5555:5555"
+    links:
+      - db
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_USER: homework
+      MYSQL_PASSWORD: homework
+      MYSQL_DATABASE: homework
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
