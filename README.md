@@ -12,8 +12,9 @@ Go to `http://localhost:5555/`.
 
 * SQL schema available in `init.sql`.
 
-* Since Node 6.x did not have async/await support, you need to transform using Babel:
+* Since Node 6.x did not have async/await support, you need to transform using Babel.
 
+For example:
 
     yarn
     yarn babel index.js --out-file app.js
